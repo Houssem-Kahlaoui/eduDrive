@@ -1,7 +1,7 @@
 // src/components/layout/Header.jsx
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import logo from '../../assets/logo.png'; 
+import logo_complet from '../../assets/logo_complet.png'; 
 import { Icons } from '../../utils/icons';
 import { useAuthStore } from '../../store/authStore';
 
@@ -45,7 +45,7 @@ export default function Header() {
     <header className="header">
       <div className="w">
         <Link to="/" style={{ display: 'flex', alignItems: 'center' }}>
-          <img src={logo} alt="EduDrive Logo" className="logo" />
+          <img src={logo_complet} alt="EduDrive Logo" className="logo" />
         </Link>
 
         <nav className="nav">

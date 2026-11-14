@@ -60,6 +60,22 @@ input:focus, select:focus, textarea:focus {
   outline-offset: -1px;
 }
 
+
+input[type="checkbox"] {
+  width: 18px !important;
+  height: 18px !important;
+  min-width: 18px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  display: inline-block !important;
+  accent-color: var(--pri);
+  z-index: 10;
+}
+
+
+
 /* ---- CALENDRIER ---- */
 .ch {
   display: flex;
@@ -139,9 +155,9 @@ input:focus, select:focus, textarea:focus {
 
 .mc {
   width: 100%;
-  max-width: 460px;
-  max-height: 90vh;
-  overflow: auto;
+  max-width: 650px; 
+  max-height: 90vh; 
+  overflow-y: auto; 
 }
 
 /* =========================================
