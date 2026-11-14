@@ -11,7 +11,7 @@ public class MoniteurDAO {
 
     //create Moniteur
     public void create(Moniteur moniteur) {
-        String sqlUser = "INSERT INTO utilisateur(nom, prenom, email, mot_de_passe, telephone, role) VALUES (?, ?, ?, ?, ?, 'MONITEUR')";
+        String sqlUser = "INSERT INTO utilisateur(nom, prenom, email, mot_de_passe, telephone, role, actif) VALUES (?, ?, ?, ?, ?, 'MONITEUR', ?)";
         String sqlMoniteur = "INSERT INTO moniteur(id, specialite) VALUES (?, ?)";
 
         Connection conn = null;
@@ -25,6 +25,7 @@ public class MoniteurDAO {
                 stmtUser.setString(3, moniteur.getEmail());
                 stmtUser.setString(4, moniteur.getMotDePasse());
                 stmtUser.setString(5, moniteur.getTelephone());
+                stmtUser.setBoolean(6, moniteur.isActif()); 
                 stmtUser.executeUpdate();
 
                 try (ResultSet rs = stmtUser.getGeneratedKeys()) {
@@ -77,7 +78,7 @@ public class MoniteurDAO {
 
     //update Moniteur
     public void update(Moniteur moniteur) {
-        String sqlUser = "UPDATE utilisateur SET nom=?, prenom=?, email=?, mot_de_passe=?, telephone=? WHERE id=?";
+        String sqlUser = "UPDATE utilisateur SET nom=?, prenom=?, email=?, mot_de_passe=?, telephone=?, actif=? WHERE id=?";
         String sqlMoniteur = "UPDATE moniteur SET specialite=? WHERE id=?";
 
         Connection conn = null;
@@ -91,7 +92,8 @@ public class MoniteurDAO {
                 stmtUser.setString(3, moniteur.getEmail());
                 stmtUser.setString(4, moniteur.getMotDePasse());
                 stmtUser.setString(5, moniteur.getTelephone());
-                stmtUser.setLong(6, moniteur.getId());
+                stmtUser.setBoolean(6, moniteur.isActif()); 
+                stmtUser.setLong(7, moniteur.getId());      
                 stmtUser.executeUpdate();
             }
 

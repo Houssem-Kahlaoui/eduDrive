@@ -29,18 +29,23 @@ public class MoniteurController {
         m.setMotDePasse(req.password);
         m.setTelephone(req.telephone);
         m.setSpecialite(req.specialite);
-        m.setActif(true);
+        m.setActif(req.actif);
         service.create(m);
         return MoniteurResponse.from(m);
     }
 
     public MoniteurResponse update(Long id, MoniteurRequest req) {
         Moniteur m = service.getById(id);
+        
         m.setNom(req.nom);
         m.setPrenom(req.prenom);
         m.setEmail(req.email);
         m.setTelephone(req.telephone);
-        m.setSpecialite(req.specialite);
+        m.setSpecialite(req.specialite);  
+        m.setActif(req.actif);        
+        if (req.password != null && !req.password.trim().isEmpty()) {
+            m.setMotDePasse(req.password);
+        }
         service.update(id, m);
         return MoniteurResponse.from(m);
     }

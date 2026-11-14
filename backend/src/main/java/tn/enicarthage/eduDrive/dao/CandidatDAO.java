@@ -10,9 +10,9 @@ import java.util.List;
 public class CandidatDAO {
 
     public void create(Candidat candidat) {
-        String sqlUser = "INSERT INTO utilisateur(nom, prenom, email, mot_de_passe, telephone, role) VALUES (?, ?, ?, ?, ?, 'CANDIDAT')";
+        String sqlUser = "INSERT INTO utilisateur(nom, prenom, email, mot_de_passe, telephone, role, actif) VALUES (?, ?, ?, ?, ?, 'CANDIDAT', ?)";
         String sqlCandidat = "INSERT INTO candidat(id, forfait_id, date_naissance, adresse, type_permis, date_inscription, statut_formation, date_validite_code, date_souscription, heures_code_restantes, heures_conduite_restantes, dossier_complet) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        
+
         Connection conn = null;
         try {
             conn = DatabaseConnection.getConnection();
@@ -24,6 +24,7 @@ public class CandidatDAO {
                 stmtUser.setString(3, candidat.getEmail());
                 stmtUser.setString(4, candidat.getMotDePasse());
                 stmtUser.setString(5, candidat.getTelephone());
+                stmtUser.setBoolean(6, candidat.isActif()); 
                 stmtUser.executeUpdate();
 
                 try (ResultSet rs = stmtUser.getGeneratedKeys()) {
@@ -33,7 +34,7 @@ public class CandidatDAO {
 
             try (PreparedStatement stmtCandidat = conn.prepareStatement(sqlCandidat)) {
                 stmtCandidat.setLong(1, candidat.getId());
-                
+
                 if (candidat.getForfaitId() != null) stmtCandidat.setLong(2, candidat.getForfaitId());
                 else stmtCandidat.setNull(2, Types.BIGINT);
 
@@ -42,8 +43,8 @@ public class CandidatDAO {
                 stmtCandidat.setString(5, candidat.getTypePermis());
                 stmtCandidat.setDate(6, candidat.getDateInscription() != null ? Date.valueOf(candidat.getDateInscription()) : null);
                 stmtCandidat.setString(7, candidat.getStatutFormation());
-                stmtCandidat.setDate(8, candidat.getDateValiditeCode() != null ? Date.valueOf(candidat.getDateValiditeCode()) : null); // ✅
-                stmtCandidat.setDate(9, candidat.getDateSouscription() != null ? Date.valueOf(candidat.getDateSouscription()) : null); // ✅
+                stmtCandidat.setDate(8, candidat.getDateValiditeCode() != null ? Date.valueOf(candidat.getDateValiditeCode()) : null);
+                stmtCandidat.setDate(9, candidat.getDateSouscription() != null ? Date.valueOf(candidat.getDateSouscription()) : null);
                 stmtCandidat.setInt(10, candidat.getHeuresCodeRestantes());
                 stmtCandidat.setInt(11, candidat.getHeuresConduiteRestantes());
                 stmtCandidat.setBoolean(12, candidat.isDossierComplet());
@@ -69,7 +70,7 @@ public class CandidatDAO {
     public List<Candidat> findAll() {
         List<Candidat> candidats = new ArrayList<>();
         String sql = "SELECT u.*, c.* FROM utilisateur u JOIN candidat c ON u.id = c.id";
-        
+
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
@@ -80,7 +81,7 @@ public class CandidatDAO {
 
     public Candidat findById(Long id) {
         String sql = "SELECT u.*, c.* FROM utilisateur u JOIN candidat c ON u.id = c.id WHERE u.id = ?";
-        
+
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setLong(1, id);
@@ -92,9 +93,9 @@ public class CandidatDAO {
     }
 
     public void update(Candidat candidat) {
-        String sqlUser = "UPDATE utilisateur SET nom=?, prenom=?, email=?, mot_de_passe=?, telephone=? WHERE id=?";
+        String sqlUser = "UPDATE utilisateur SET nom=?, prenom=?, email=?, mot_de_passe=?, telephone=?, actif=? WHERE id=?";
         String sqlCandidat = "UPDATE candidat SET forfait_id=?, date_naissance=?, adresse=?, type_permis=?, date_inscription=?, statut_formation=?, date_validite_code=?, date_souscription=?, heures_code_restantes=?, heures_conduite_restantes=?, dossier_complet=? WHERE id=?";
-        
+
         Connection conn = null;
         try {
             conn = DatabaseConnection.getConnection();
@@ -106,7 +107,8 @@ public class CandidatDAO {
                 stmtUser.setString(3, candidat.getEmail());
                 stmtUser.setString(4, candidat.getMotDePasse());
                 stmtUser.setString(5, candidat.getTelephone());
-                stmtUser.setLong(6, candidat.getId());
+                stmtUser.setBoolean(6, candidat.isActif()); 
+                stmtUser.setLong(7, candidat.getId()); 
                 stmtUser.executeUpdate();
             }
 
@@ -119,8 +121,8 @@ public class CandidatDAO {
                 stmtCandidat.setString(4, candidat.getTypePermis());
                 stmtCandidat.setDate(5, candidat.getDateInscription() != null ? Date.valueOf(candidat.getDateInscription()) : null);
                 stmtCandidat.setString(6, candidat.getStatutFormation());
-                stmtCandidat.setDate(7, candidat.getDateValiditeCode() != null ? Date.valueOf(candidat.getDateValiditeCode()) : null); // ✅
-                stmtCandidat.setDate(8, candidat.getDateSouscription() != null ? Date.valueOf(candidat.getDateSouscription()) : null); // ✅
+                stmtCandidat.setDate(7, candidat.getDateValiditeCode() != null ? Date.valueOf(candidat.getDateValiditeCode()) : null);
+                stmtCandidat.setDate(8, candidat.getDateSouscription() != null ? Date.valueOf(candidat.getDateSouscription()) : null);
                 stmtCandidat.setInt(9, candidat.getHeuresCodeRestantes());
                 stmtCandidat.setInt(10, candidat.getHeuresConduiteRestantes());
                 stmtCandidat.setBoolean(11, candidat.isDossierComplet());
@@ -163,7 +165,7 @@ public class CandidatDAO {
         c.setTelephone(rs.getString("telephone"));
         c.setActif(rs.getBoolean("actif"));
         c.setRole(rs.getString("role"));
-        
+
         long forfaitId = rs.getLong("forfait_id");
         c.setForfaitId(rs.wasNull() ? null : forfaitId);
 
@@ -177,7 +179,7 @@ public class CandidatDAO {
         c.setHeuresCodeRestantes(rs.getInt("heures_code_restantes"));
         c.setHeuresConduiteRestantes(rs.getInt("heures_conduite_restantes"));
         c.setDossierComplet(rs.getBoolean("dossier_complet"));
-        
+
         return c;
     }
 }

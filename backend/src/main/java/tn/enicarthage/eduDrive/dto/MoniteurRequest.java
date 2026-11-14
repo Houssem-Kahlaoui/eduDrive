@@ -7,4 +7,5 @@ public class MoniteurRequest {
     public String password;
     public String telephone;
     public String specialite; // "CODE", "CONDUITE", "CODE_CONDUITE"
+    public boolean actif = true;
 }
