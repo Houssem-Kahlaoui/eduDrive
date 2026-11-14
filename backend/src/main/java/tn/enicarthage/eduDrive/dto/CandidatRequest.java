@@ -10,4 +10,7 @@ public class CandidatRequest {
     public LocalDate dateNaissance;
     public String adresse;
     public String typePermis;
+    public boolean actif ;
+    public Long forfaitId; 
+
 }

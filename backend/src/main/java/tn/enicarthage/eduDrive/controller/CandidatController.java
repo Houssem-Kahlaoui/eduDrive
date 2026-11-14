@@ -36,19 +36,30 @@ public class CandidatController {
         c.setEmail(req.email);
         c.setMotDePasse(req.password);
         c.setTelephone(req.telephone);
-        c.setForfaitId(null); 
+        
+        c.setForfaitId(req.forfaitId); 
         c.setDateNaissance(req.dateNaissance);
         c.setAdresse(req.adresse);
         c.setTypePermis(req.typePermis);
         c.setDateInscription(LocalDate.now());
         c.setStatutFormation("EN_COURS");
-        c.setActif(true);
+        c.setActif(req.actif);
+
+        if (req.forfaitId != null) {
+            Forfait f = forfaitDAO.findById(req.forfaitId);
+            if (f != null) {
+                c.setHeuresCodeRestantes(f.getHeuresCode());
+                c.setHeuresConduiteRestantes(f.getHeuresConduite());
+                c.setDateSouscription(LocalDate.now());
+            }
+        }
         service.createCandidat(c);
         return toResponse(c);
     }
 
     public CandidatResponse update(Long id, CandidatRequest req) {
         Candidat c = service.getCandidatById(id);
+        
         c.setNom(req.nom);
         c.setPrenom(req.prenom);
         c.setEmail(req.email);
@@ -56,6 +67,28 @@ public class CandidatController {
         c.setDateNaissance(req.dateNaissance);
         c.setAdresse(req.adresse);
         c.setTypePermis(req.typePermis);
+        
+        if (req.password != null && !req.password.trim().isEmpty()) {
+            c.setMotDePasse(req.password);
+        }
+
+        c.setActif(req.actif);
+
+        if (req.forfaitId != null && !req.forfaitId.equals(c.getForfaitId())) {
+            Forfait f = forfaitDAO.findById(req.forfaitId);
+            if (f != null) {
+                c.setForfaitId(req.forfaitId);
+                c.setHeuresCodeRestantes(f.getHeuresCode());
+                c.setHeuresConduiteRestantes(f.getHeuresConduite());
+                c.setDateSouscription(LocalDate.now());
+            }
+        } else if (req.forfaitId == null && c.getForfaitId() != null) {
+            c.setForfaitId(null);
+            c.setHeuresCodeRestantes(0);
+            c.setHeuresConduiteRestantes(0);
+            c.setDateSouscription(null);
+        }
+
         service.updateCandidat(id, c);
         return toResponse(c);
     }
@@ -68,9 +101,9 @@ public class CandidatController {
 
         Candidat c = service.getCandidatById(id);
         c.setForfaitId(req.forfaitId);
-        c.setHeuresCodeRestantes(f.getHeuresCode()); // ✅ Copie des heures
-        c.setHeuresConduiteRestantes(f.getHeuresConduite()); // ✅ Copie des heures
-        c.setDateSouscription(LocalDate.now()); // ✅ Date de souscription
+        c.setHeuresCodeRestantes(f.getHeuresCode());
+        c.setHeuresConduiteRestantes(f.getHeuresConduite());
+        c.setDateSouscription(LocalDate.now());
         service.updateCandidat(id, c);
         return toResponse(c);
     }

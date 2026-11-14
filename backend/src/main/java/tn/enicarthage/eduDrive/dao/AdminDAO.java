@@ -10,7 +10,7 @@ import java.util.List;
 public class AdminDAO {
 
     public void create(Admin admin) {
-        String sqlUser = "INSERT INTO utilisateur(nom, prenom, email, mot_de_passe, telephone, role) VALUES (?, ?, ?, ?, ?, 'ADMIN')";
+        String sqlUser = "INSERT INTO utilisateur(nom, prenom, email, mot_de_passe, telephone, role, actif) VALUES (?, ?, ?, ?, ?, 'ADMIN', ?)";
         String sqlAdmin = "INSERT INTO admin(id) VALUES (?)";
 
         Connection conn = null;
@@ -24,6 +24,7 @@ public class AdminDAO {
                 stmtUser.setString(3, admin.getEmail());
                 stmtUser.setString(4, admin.getMotDePasse());
                 stmtUser.setString(5, admin.getTelephone());
+                stmtUser.setBoolean(6, admin.isActif()); 
                 stmtUser.executeUpdate();
 
                 try (ResultSet rs = stmtUser.getGeneratedKeys()) {
@@ -71,7 +72,7 @@ public class AdminDAO {
     }
 
     public void update(Admin admin) {
-        String sql = "UPDATE utilisateur SET nom=?, prenom=?, email=?, mot_de_passe=?, telephone=? WHERE id=?";
+        String sql = "UPDATE utilisateur SET nom=?, prenom=?, email=?, mot_de_passe=?, telephone=?, actif=? WHERE id=?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, admin.getNom());
@@ -79,7 +80,8 @@ public class AdminDAO {
             stmt.setString(3, admin.getEmail());
             stmt.setString(4, admin.getMotDePasse());
             stmt.setString(5, admin.getTelephone());
-            stmt.setLong(6, admin.getId());
+            stmt.setBoolean(6, admin.isActif()); 
+            stmt.setLong(7, admin.getId());      
             stmt.executeUpdate();
             System.out.println("Admin mis à jour.");
         } catch (SQLException e) { e.printStackTrace(); }

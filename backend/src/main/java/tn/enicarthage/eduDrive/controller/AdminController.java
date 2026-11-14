@@ -1,7 +1,7 @@
 package tn.enicarthage.eduDrive.controller;
 
+import tn.enicarthage.eduDrive.dto.AdminRequest;
 import tn.enicarthage.eduDrive.dto.AdminResponse;
-import tn.enicarthage.eduDrive.dto.LoginRequest;
 import tn.enicarthage.eduDrive.model.Admin;
 import tn.enicarthage.eduDrive.service.AdminService;
 
@@ -21,24 +21,36 @@ public class AdminController {
         return AdminResponse.from(service.getById(id));
     }
 
-    public AdminResponse create(LoginRequest req) {
+    public AdminResponse create(AdminRequest req) {
         Admin a = new Admin();
-        a.setNom(req.email.split("@")[0]);
-        a.setPrenom("Admin");
+        a.setNom(req.nom);
+        a.setPrenom(req.prenom);
         a.setEmail(req.email);
         a.setMotDePasse(req.password);
-        a.setActif(true);
+        a.setTelephone(req.telephone);
+        a.setActif(req.actif);
         service.create(a);
         return AdminResponse.from(a);
     }
 
-    public AdminResponse update(Long id, LoginRequest req) {
+    public AdminResponse update(Long id, AdminRequest req) {
         Admin a = service.getById(id);
+        
+        a.setNom(req.nom);
+        a.setPrenom(req.prenom);
         a.setEmail(req.email);
-        a.setMotDePasse(req.password);
+        a.setTelephone(req.telephone);        
+        a.setActif(req.actif);
+        
+        if (req.password != null && !req.password.trim().isEmpty()) {
+            a.setMotDePasse(req.password);
+        }
+        
         service.update(id, a);
         return AdminResponse.from(a);
     }
 
-    public void delete(Long id) { service.delete(id); }
+    public void delete(Long id) {
+        service.delete(id);
+    }
 }

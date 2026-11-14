@@ -7,18 +7,19 @@ import LoginPage from './pages/public/LoginPage';
 
 // Admin
 import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminUtilisateurs from './pages/admin/AdminUtilisateurs'; 
 
-// Moniteur (temp )
+// Moniteur (temp)
 import MoniteurDashboard from './pages/moniteur/MoniteurDashboard';
 
-// Candidat (temp
+// Candidat (temp)
 import CandidatDashboard from './pages/candidat/CandidatDashboard';
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public Routes*/}
+        {/* Public Routes */}
         <Route element={<MainLayout />}>
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
@@ -28,6 +29,7 @@ function App() {
         <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
           <Route element={<DashboardLayout />}>
             <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/utilisateurs" element={<AdminUtilisateurs />} /> 
           </Route>
         </Route>
 

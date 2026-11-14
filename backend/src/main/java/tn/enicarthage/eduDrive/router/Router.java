@@ -63,10 +63,10 @@ public class Router {
             return routeLogin(methode, exchange);
         }
 
-        //
+        // JWT token verification
         verifierToken(exchange);
 
-        // 
+        // Dispatch
         switch (route) {
             case "admin":     return routeAdmin(methode, segments, exchange);
             case "candidats": return routeCandidatEspace(methode, segments, exchange);
@@ -76,16 +76,16 @@ public class Router {
         }
     }
 
-    //JWT token verification
+    // JWT token verification
     private void verifierToken(HttpExchange exchange) {
         String authHeader = exchange.getRequestHeaders().getFirst("Authorization");
-        
+
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             throw new AuthenticationException("Token manquant ou invalide. Veuillez vous connecter.");
         }
 
         String token = authHeader.substring(7); // Enlève "Bearer "
-        
+
         if (!JwtUtil.validateToken(token)) {
             throw new AuthenticationException("Token expiré ou invalide. Veuillez vous reconnecter.");
         }
@@ -195,7 +195,7 @@ public class Router {
         if (segments.length == 3) {
             if (methode.equals("GET")) return new Reponse(200, gson.toJson(adminController.getAll()));
             if (methode.equals("POST")) {
-                LoginRequest req = lireCorps(exchange, LoginRequest.class);
+                AdminRequest req = lireCorps(exchange, AdminRequest.class);
                 return new Reponse(201, gson.toJson(adminController.create(req)));
             }
         }
@@ -203,10 +203,13 @@ public class Router {
             Long id = parseId(segments[3]);
             if (methode.equals("GET")) return new Reponse(200, gson.toJson(adminController.getById(id)));
             if (methode.equals("PUT")) {
-                LoginRequest req = lireCorps(exchange, LoginRequest.class);
+                AdminRequest req = lireCorps(exchange, AdminRequest.class);
                 return new Reponse(200, gson.toJson(adminController.update(id, req)));
             }
-            if (methode.equals("DELETE")) { adminController.delete(id); return new Reponse(204, ""); }
+            if (methode.equals("DELETE")) {
+                adminController.delete(id);
+                return new Reponse(204, "");
+            }
         }
         throw new ValidationException("Methode non supportee : " + methode);
     }
