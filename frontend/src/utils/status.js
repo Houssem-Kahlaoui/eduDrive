@@ -1,6 +1,11 @@
 // src/utils/status.js
 
 const STATUS_CLASSES = {
+  // Forfaits
+  CODE_SEUL: '', // Bleu 
+  CODE_CONDUITE: 'ok', // Vert
+  A_L_HEURE: 'wa', // Orange
+
   // ✅ OK (vert)
   CONFIRMEE: 'ok',
   REUSSI: 'ok',
