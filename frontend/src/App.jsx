@@ -6,11 +6,12 @@ import HomePage from './pages/public/HomePage';
 import LoginPage from './pages/public/LoginPage';
 
 
-import AdminForfaits from './pages/admin/AdminForfaits';
-
 // Admin
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminUtilisateurs from './pages/admin/AdminUtilisateurs'; 
+import AdminVehicules from './pages/admin/AdminVehicules';
+import AdminForfaits from './pages/admin/AdminForfaits';
+
 
 // Moniteur (temp)
 import MoniteurDashboard from './pages/moniteur/MoniteurDashboard';
@@ -34,6 +35,7 @@ function App() {
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/utilisateurs" element={<AdminUtilisateurs />} />
             <Route path="/admin/forfaits" element={<AdminForfaits />} />
+            <Route path="/admin/vehicules" element={<AdminVehicules />} />
              
           </Route>
         </Route>
