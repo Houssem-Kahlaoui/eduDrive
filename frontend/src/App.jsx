@@ -11,6 +11,8 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminUtilisateurs from './pages/admin/AdminUtilisateurs'; 
 import AdminVehicules from './pages/admin/AdminVehicules';
 import AdminForfaits from './pages/admin/AdminForfaits';
+import AdminExamens from './pages/admin/AdminExamens';
+
 
 
 // Moniteur (temp)
@@ -36,6 +38,7 @@ function App() {
             <Route path="/admin/utilisateurs" element={<AdminUtilisateurs />} />
             <Route path="/admin/forfaits" element={<AdminForfaits />} />
             <Route path="/admin/vehicules" element={<AdminVehicules />} />
+            <Route path="/admin/examens" element={<AdminExamens />} />
              
           </Route>
         </Route>

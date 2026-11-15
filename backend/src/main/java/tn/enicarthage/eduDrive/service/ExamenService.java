@@ -41,11 +41,23 @@ public class ExamenService {
 
     public void create(Examen e) {
         if (e.getCandidatId() == null) throw new ValidationException("Le candidat est obligatoire.");
+        if (e.getType() == null) throw new ValidationException("Le type d'examen est obligatoire.");
         if (!TYPES.contains(e.getType())) throw new ValidationException("Type d'examen invalide.");
         if (e.getDateExamen() == null) throw new ValidationException("La date d'examen est obligatoire.");
 
-        if (candidatDAO.findById(e.getCandidatId()) == null)
+        // ✅ 1. Vérifier que la date n'est pas dans le passé
+        if (e.getDateExamen().isBefore(LocalDate.now())) {
+            throw new ValidationException("Impossible de planifier un examen dans le passé.");
+        }
+
+        // ✅ 2. Vérifier que le candidat existe et est prêt
+        Candidat candidat = candidatDAO.findById(e.getCandidatId());
+        if (candidat == null) {
             throw new ResourceNotFoundException("Candidat introuvable : " + e.getCandidatId());
+        }
+        if (!"PRET_EXAMEN".equals(candidat.getStatutFormation())) {
+            throw new ValidationException("Le candidat n'est pas encore déclaré prêt pour l'examen.");
+        }
 
         int tentatives = examenDAO.countByCandidatAndType(e.getCandidatId(), e.getType());
 
@@ -79,10 +91,8 @@ public class ExamenService {
         boolean nouveauEchec = !"ECHOUE".equals(existant.getResultat()) && "ECHOUE".equals(e.getResultat());
         boolean nouveauReussi = !"REUSSI".equals(existant.getResultat()) && "REUSSI".equals(e.getResultat());
 
-        // ✅ 1. On sauvegarde d'abord l'examen
         examenDAO.update(e);
 
-        // ✅ 2. Ensuite on applique les règles métier (qui peuvent lancer une exception)
         if (nouveauEchec) appliquerRegleEchec(e);
         if (nouveauReussi) appliquerReussite(e);
     }
