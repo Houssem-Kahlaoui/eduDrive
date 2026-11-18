@@ -5,9 +5,17 @@ import ProtectedRoute from './components/ProtectedRoute';
 import HomePage from './pages/public/HomePage';
 import LoginPage from './pages/public/LoginPage';
 
+
 // Admin
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminUtilisateurs from './pages/admin/AdminUtilisateurs'; 
+import AdminVehicules from './pages/admin/AdminVehicules';
+import AdminForfaits from './pages/admin/AdminForfaits';
+import AdminExamens from './pages/admin/AdminExamens';
+import AdminSeances from './pages/admin/AdminSeances';
+
+
+
 
 // Moniteur (temp)
 import MoniteurDashboard from './pages/moniteur/MoniteurDashboard';
@@ -29,7 +37,11 @@ function App() {
         <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
           <Route element={<DashboardLayout />}>
             <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/admin/utilisateurs" element={<AdminUtilisateurs />} /> 
+            <Route path="/admin/utilisateurs" element={<AdminUtilisateurs />} />
+            <Route path="/admin/forfaits" element={<AdminForfaits />} />
+            <Route path="/admin/vehicules" element={<AdminVehicules />} />
+            <Route path="/admin/examens" element={<AdminExamens />} />
+            <Route path="/admin/seances" element={<AdminSeances />} />             
           </Route>
         </Route>
 

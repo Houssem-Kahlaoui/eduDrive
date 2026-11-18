@@ -1,24 +1,22 @@
-// src/components/layout/DashboardLayout.jsx
 import { Outlet } from 'react-router-dom';
 import Header from './Header';
 import Sidebar from './Sidebar';
-import Footer from './Footer';
+import ProfileModal from '../ui/ProfileModal'; 
 
 export default function DashboardLayout() {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: 'var(--bg)' }}>
+    <div className="dashboard">
       <Header />
+      <ProfileModal /> 
 
-      <div style={{ display: 'flex', flex: 1 }}>
+      <div className="dash-body">
         <Sidebar />
-        <main style={{ flex: 1, padding: '30px', overflowY: 'auto' }}>
+        <main className="dash-main">
           <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
             <Outlet />
           </div>
         </main>
       </div>
-
-      <Footer />
     </div>
   );
 }

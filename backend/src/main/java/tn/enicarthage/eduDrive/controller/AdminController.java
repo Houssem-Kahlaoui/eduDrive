@@ -21,18 +21,7 @@ public class AdminController {
         return AdminResponse.from(service.getById(id));
     }
 
-    public AdminResponse create(AdminRequest req) {
-        Admin a = new Admin();
-        a.setNom(req.nom);
-        a.setPrenom(req.prenom);
-        a.setEmail(req.email);
-        a.setMotDePasse(req.password);
-        a.setTelephone(req.telephone);
-        a.setActif(req.actif);
-        service.create(a);
-        return AdminResponse.from(a);
-    }
-
+    // ✅ La méthode update est de retour pour le profil
     public AdminResponse update(Long id, AdminRequest req) {
         Admin a = service.getById(id);
         
@@ -48,9 +37,5 @@ public class AdminController {
         
         service.update(id, a);
         return AdminResponse.from(a);
-    }
-
-    public void delete(Long id) {
-        service.delete(id);
     }
 }

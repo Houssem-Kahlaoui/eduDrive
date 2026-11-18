@@ -1,16 +1,11 @@
 // src/pages/public/HomePage.jsx
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import api from '../../services/api'; 
 import Button from '../../components/ui/Button';
 import logo from '../../assets/logo.png'; 
 import { Icons } from '../../utils/icons';
-
-// --- DONNÉES ---
-const FORFAITS = [
-  { id: 1, nom: 'Pack Code', type: 'CODE_SEUL', hc: 20, hd: 0, prix: 150 },
-  { id: 2, nom: 'Pack Code + Conduite', type: 'CODE_CONDUITE', hc: 20, hd: 20, prix: 690 },
-  { id: 3, nom: 'Conduite à l’heure', type: 'A_L_HEURE', hc: 0, hd: 1, prix: 35 },
-];
 
 const FEATURES = [
   { icon: 'cal', title: 'Planning sans conflit', desc: 'Détection automatique des conflits d’agenda.' },
@@ -27,8 +22,18 @@ const FAQ = [
   { q: 'Comment accéder à mon espace ?', a: 'Cliquez sur « Se connecter » ou choisissez directement votre profil.' },
 ];
 
+const fetchForfaits = async () => {
+  const res = await api.get('/admin/forfaits');
+  return res.data;
+};
+
 export default function HomePage() {
   const [openFaq, setOpenFaq] = useState(0);
+
+  const { data: forfaits = [], isLoading } = useQuery({
+    queryKey: ['forfaits-public'],
+    queryFn: fetchForfaits,
+  });
 
   return (
     <>
@@ -59,43 +64,46 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ---------- FORFAITS ---------- */}
       <section className="soft" id="forfaits">
         <div className="t">
           <i>Nos offres</i>
           <h2>Forfaits disponibles</h2>
         </div>
-        <div className="g3">
-          {FORFAITS.map((f) => (
-            <div className="card" key={f.id} style={{ padding: 0, overflow: 'hidden' }}>
-              <div style={{ background: 'var(--soft)', padding: '26px' }}>
-                <small style={{ color: 'var(--gold)', display: 'block', fontSize: '12px', fontWeight: '500' }}>
-                  {f.type.replace(/_/g, ' ')}
-                </small>
-                <div style={{ fontSize: '20px', fontWeight: '700', marginTop: '4px' }}>{f.nom}</div>
-              </div>
-              <div style={{ padding: '18px' }}>
-                <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 14px', color: 'var(--mut)', fontSize: '13px' }}>
-                  <li>✓ {f.hc} h de code</li>
-                  <li>✓ {f.hd} h de conduite</li>
-                  <li>✓ Planning en ligne</li>
-                  <li>✓ Suivi des heures restantes</li>
-                </ul>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: '22px', fontWeight: '700' }}>
-                    {f.prix} <small style={{ fontSize: '12px' }}>DT</small>
-                  </span>
-                  <Link to="/login">
-                    <Button size="small">En savoir plus →</Button>
-                  </Link>
+        
+        {isLoading ? (
+          <p style={{ textAlign: 'center', padding: '40px 0' }}>Chargement des forfaits...</p>
+        ) : (
+          <div className="g3">
+            {forfaits.filter(f => f.actif).map((f) => ( 
+              <div className="card" key={f.id} style={{ padding: 0, overflow: 'hidden' }}>
+                <div style={{ background: 'var(--soft)', padding: '26px' }}>
+                  <small style={{ color: 'var(--gold)', display: 'block', fontSize: '12px', fontWeight: '500' }}>
+                    {f.typeForfait ? f.typeForfait.replace(/_/g, ' ') : 'FORFAIT'}
+                  </small>
+                  <div style={{ fontSize: '20px', fontWeight: '700', marginTop: '4px' }}>{f.nom}</div>
+                </div>
+                <div style={{ padding: '18px' }}>
+                  <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 14px', color: 'var(--mut)', fontSize: '13px' }}>
+                    <li>✓ {f.heuresCode} h de code</li>
+                    <li>✓ {f.heuresConduite} h de conduite</li>
+                    <li>✓ Planning en ligne</li>
+                    <li>✓ Suivi des heures restantes</li>
+                  </ul>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: '22px', fontWeight: '700' }}>
+                      {f.prix} <small style={{ fontSize: '12px' }}>DT</small>
+                    </span>
+                    <Link to="/login">
+                      <Button size="small">En savoir plus →</Button>
+                    </Link>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </section>
 
-      {/* ---------- FONCTIONNALITÉS ---------- */}
       <section className="sec" id="fonctionnalites">
         <div className="t">
           <i>Débloquez le succès</i>
@@ -104,7 +112,6 @@ export default function HomePage() {
         <div className="g3">
           {FEATURES.map((f, i) => (
             <div className="card ft" key={i}>
-              {/* L'icône dans son carré bleu clair */}
               <div className="ib">{Icons[f.icon]}</div>
               <div>
                 <b>{f.title}</b>
@@ -139,11 +146,9 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ---------- SECTION CONTACT ---------- */}
       <section className="ct" id="contact">
         <div className="cc">
           
-          {/* Colonne de gauche : Infos */}
           <div>
             <i>Contact</i>
             <h2>Vous ne savez pas par où commencer ?</h2>
@@ -174,7 +179,6 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Colonne de droite : Formulaire */}
           <form className="fm card" onSubmit={(e) => { e.preventDefault(); alert('Message envoyé ✔'); e.target.reset(); }}>
             <div>
               <label>Nom & Prénom</label>
@@ -192,7 +196,6 @@ export default function HomePage() {
               <label>Message</label>
               <textarea rows="4" required></textarea>
             </div>
-            {/* Bouton Envoyer centré et prenant toute la largeur */}
             <Button type="submit" style={{ width: '100%', padding: '12px', marginTop: '8px', justifyContent: 'center' }}>
               Envoyer
             </Button>
