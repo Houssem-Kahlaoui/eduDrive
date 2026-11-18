@@ -15,6 +15,10 @@ export default function Sidebar() {
       { path: '/admin/vehicules', label: 'Véhicules', icon: Icons.car },
       { path: '/admin/examens', label: 'Examens', icon: Icons.cap },
     ],
+    MONITEUR: [
+      { path: '/moniteur', label: 'Mon planning', icon: Icons.cal },
+      { path: '/moniteur/candidats', label: 'Mes candidats', icon: Icons.users },
+    ],
   };
 
   const menuItems = MENUS[user?.role] || [];
