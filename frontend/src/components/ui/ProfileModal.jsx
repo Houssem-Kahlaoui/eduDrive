@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useAuthStore } from '../../store/authStore';
+import { utilisateurService } from '../../services/utilisateurService';
 import Modal from './Modal';
 import Button from './Button';
-import { utilisateurService } from '../../services/utilisateurService';
+import { toast } from 'sonner';
 
 export default function ProfileModal() {
   const [isOpen, setIsOpen] = useState(false);
-  const { user, login } = useAuthStore(); 
+  const { user } = useAuthStore();
   const { register, handleSubmit, reset } = useForm();
 
   useEffect(() => {
@@ -17,6 +18,7 @@ export default function ProfileModal() {
         prenom: user?.prenom || '',
         email: user?.email || '',
         telephone: user?.telephone || '',
+        specialite: user?.specialite || 'CODE_CONDUITE',
         password: '',
       });
       setIsOpen(true);
@@ -28,17 +30,22 @@ export default function ProfileModal() {
 
   const onSubmit = async (data) => {
     try {
-      if (user.role === 'ADMIN') await utilisateurService.updateAdmin(user.id, data);
-      else if (user.role === 'MONITEUR') await utilisateurService.updateMoniteur(user.id, data);
-      else await utilisateurService.updateCandidat(user.id, data);
+      if (user.role === 'MONITEUR') {
+        await utilisateurService.updateMoniteur(user.id, data);
+      } else if (user.role === 'CANDIDAT') {
+        await utilisateurService.updateCandidat(user.id, data);
+      } else {
+        await utilisateurService.updateAdmin(user.id, data);
+      }
 
-      const updatedUser = { ...user, nom: data.nom, prenom: data.prenom, email: data.email, telephone: data.telephone };
+      const updatedUser = { ...user, nom: data.nom, prenom: data.prenom, email: data.email, telephone: data.telephone, specialite: data.specialite };
       localStorage.setItem('eduDriveUser', JSON.stringify(updatedUser));
       
-      window.location.reload(); 
+      toast.success('Profil mis à jour avec succès !');
+      setTimeout(() => window.location.reload(), 1000); 
       
     } catch (error) {
-      alert(error.response?.data?.erreur || "Erreur lors de la modification.");
+      toast.error(error.response?.data?.erreur || "Erreur lors de la modification.");
     }
   };
 
@@ -68,6 +75,17 @@ export default function ProfileModal() {
           <label>Téléphone</label>
           <input {...register('telephone')} />
         </div>
+
+        {user.role === 'MONITEUR' && (
+          <div>
+            <label>Spécialité</label>
+            <select {...register('specialite', { required: 'Requis' })}>
+              <option value="CODE">Code</option>
+              <option value="CONDUITE">Conduite</option>
+              <option value="CODE_CONDUITE">Code & Conduite</option>
+            </select>
+          </div>
+        )}
 
         <div>
           <label>Nouveau mot de passe <span style={{ fontSize: '11px', color: 'var(--mut)' }}>(laisser vide pour ne pas changer)</span></label>

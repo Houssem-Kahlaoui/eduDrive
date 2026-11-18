@@ -19,6 +19,8 @@ import AdminSeances from './pages/admin/AdminSeances';
 
 // Moniteur (temp)
 import MoniteurDashboard from './pages/moniteur/MoniteurDashboard';
+import MoniteurCandidats from './pages/moniteur/MoniteurCandidats';
+
 
 // Candidat (temp)
 import CandidatDashboard from './pages/candidat/CandidatDashboard';
@@ -49,6 +51,7 @@ function App() {
         <Route element={<ProtectedRoute allowedRoles={['MONITEUR']} />}>
           <Route element={<DashboardLayout />}>
             <Route path="/moniteur" element={<MoniteurDashboard />} />
+            <Route path="/moniteur/candidats" element={<MoniteurCandidats />} />
           </Route>
         </Route>
 
