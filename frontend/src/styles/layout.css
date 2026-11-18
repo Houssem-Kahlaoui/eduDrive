@@ -184,3 +184,43 @@
   font-size: 13px;
   line-height: 1.5;
 }
+
+
+/* Dashboard : la page ne défile pas, seul le contenu central défile */
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.dashboard .dash-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;          /* indispensable pour que le contenu puisse défiler */
+}
+
+.dashboard .dash-sidebar {
+  width: 250px;
+  flex-shrink: 0;
+  height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  box-sizing: border-box;
+  background: var(--soft);
+  border-right: 1px solid var(--bd);
+  padding: 14px;
+}
+
+.dashboard .dash-main {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  padding: 30px;
+}
+
+.dashboard .footer {
+  margin-top: 0;
+  flex-shrink: 0;
+}

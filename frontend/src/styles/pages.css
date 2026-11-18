@@ -227,3 +227,18 @@ input[type="checkbox"] {
     grid-template-columns: 1fr;
   }
 }
+.cd.td {
+  border: 2px solid var(--pri); 
+  background: var(--soft);
+}
+
+.cd b {
+  display: block;
+  color: var(--mut);
+}
+
+.cd.td b {
+  color: var(--pri);
+  font-weight: 800;
+}
+

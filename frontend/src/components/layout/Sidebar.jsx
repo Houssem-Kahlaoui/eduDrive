@@ -1,4 +1,3 @@
-// src/components/layout/Sidebar.jsx
 import { Link, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { Icons } from '../../utils/icons';
@@ -9,10 +8,10 @@ export default function Sidebar() {
 
   const MENUS = {
     ADMIN: [
-      { path: '/admin', label: 'Tableau de bord', icon: Icons.chk },   
+      { path: '/admin', label: 'Tableau de bord', icon: Icons.chk },
       { path: '/admin/seances', label: 'Séances', icon: Icons.cal },
-      { path: '/admin/utilisateurs', label: 'Utilisateurs', icon: Icons.users }, 
-      { path: '/admin/forfaits', label: 'Forfaits', icon: Icons.box }, 
+      { path: '/admin/utilisateurs', label: 'Utilisateurs', icon: Icons.users },
+      { path: '/admin/forfaits', label: 'Forfaits', icon: Icons.box },
       { path: '/admin/vehicules', label: 'Véhicules', icon: Icons.car },
       { path: '/admin/examens', label: 'Examens', icon: Icons.cap },
     ],
@@ -20,21 +19,18 @@ export default function Sidebar() {
 
   const menuItems = MENUS[user?.role] || [];
 
+  const handleOpenProfile = () => {
+    window.dispatchEvent(new CustomEvent('open-profile-modal'));
+  };
+
   return (
-    <aside style={{
-      width: '250px',
-      background: 'var(--soft)',
-      borderRadius: '18px',
-      padding: '14px',
-      margin: '20px',
-      height: 'fit-content'
-    }}>
+    <aside className="dash-sidebar" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div style={{ padding: '8px 10px 14px', fontSize: '13px', color: 'var(--mut)' }}>
         {user?.role}
         <b style={{ display: 'block', color: 'var(--txt)', fontSize: '15px' }}>{user?.nom}</b>
       </div>
 
-      <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+      <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
         {menuItems.map((item) => {
           const isActive = location.pathname === item.path;
           return (
@@ -61,6 +57,34 @@ export default function Sidebar() {
           );
         })}
       </nav>
+
+      <div style={{ paddingTop: '10px', marginTop: 'auto', borderTop: '1px solid var(--bd)' }}>
+        <button
+          onClick={handleOpenProfile}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            width: '100%',
+            padding: '10px 12px',
+            borderRadius: '10px',
+            textDecoration: 'none',
+            fontSize: '14px',
+            fontWeight: '500',
+            background: 'transparent',
+            color: 'var(--txt)',
+            border: 'none',
+            cursor: 'pointer',
+            textAlign: 'left',
+            transition: 'all 0.2s',
+          }}
+          onMouseOver={(e) => e.currentTarget.style.background = 'var(--soft)'}
+          onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}
+        >
+          {Icons.user}
+          Mon profil
+        </button>
+      </div>
     </aside>
   );
 }

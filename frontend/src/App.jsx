@@ -12,6 +12,8 @@ import AdminUtilisateurs from './pages/admin/AdminUtilisateurs';
 import AdminVehicules from './pages/admin/AdminVehicules';
 import AdminForfaits from './pages/admin/AdminForfaits';
 import AdminExamens from './pages/admin/AdminExamens';
+import AdminSeances from './pages/admin/AdminSeances';
+
 
 
 
@@ -39,7 +41,7 @@ function App() {
             <Route path="/admin/forfaits" element={<AdminForfaits />} />
             <Route path="/admin/vehicules" element={<AdminVehicules />} />
             <Route path="/admin/examens" element={<AdminExamens />} />
-             
+            <Route path="/admin/seances" element={<AdminSeances />} />             
           </Route>
         </Route>
 

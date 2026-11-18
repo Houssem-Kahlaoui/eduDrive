@@ -8,42 +8,35 @@ import Modal from '../../components/ui/Modal';
 import Button from '../../components/ui/Button';
 
 export default function AdminUtilisateurs() {
-  const [activeTab, setActiveTab] = useState('CANDIDATS');
+  const [activeTab, setActiveTab] = useState('CANDIDATS'); // 'CANDIDATS' ou 'MONITEURS'
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
 
   const queryClient = useQueryClient();
 
-  // --- RÉCUPÉRATION DES DONNÉES ---
   const { data: candidats = [], isLoading: loadC } = useQuery({ queryKey: ['candidats'], queryFn: utilisateurService.getCandidats });
   const { data: moniteurs = [], isLoading: loadM } = useQuery({ queryKey: ['moniteurs'], queryFn: utilisateurService.getMoniteurs });
-  const { data: admins = [], isLoading: loadA } = useQuery({ queryKey: ['admins'], queryFn: utilisateurService.getAdmins });
   const { data: forfaits = [] } = useQuery({ queryKey: ['forfaits'], queryFn: forfaitService.getForfaits });
+  
 
   // --- FORMULAIRE ---
   const { register, handleSubmit, reset, setValue, watch } = useForm({
     defaultValues: { actif: true }
   });
 
-  // ✅ On surveille l'état de la case
   const isActif = watch('actif');
 
-  // --- MUTATION (AJOUT / MODIFICATION) ---
   const saveMutation = useMutation({
     mutationFn: (data) => {
       data.actif = data.actif === true || data.actif === 'true';
       if (data.forfaitId === '') delete data.forfaitId;
 
       if (editingUser) {
-        // Mode Modification
         if (activeTab === 'CANDIDATS') return utilisateurService.updateCandidat(editingUser.id, data);
-        if (activeTab === 'MONITEURS') return utilisateurService.updateMoniteur(editingUser.id, data);
-        return utilisateurService.updateAdmin(editingUser.id, data);
+        return utilisateurService.updateMoniteur(editingUser.id, data);
       } else {
-        // Mode Ajout
         if (activeTab === 'CANDIDATS') return utilisateurService.createCandidat(data);
-        if (activeTab === 'MONITEURS') return utilisateurService.createMoniteur(data);
-        return utilisateurService.createAdmin(data);
+        return utilisateurService.createMoniteur(data);
       }
     },
     onSuccess: () => {
@@ -58,12 +51,10 @@ export default function AdminUtilisateurs() {
     }
   });
 
-  // --- MUTATION (SUPPRESSION) ---
   const deleteMutation = useMutation({
     mutationFn: (id) => {
       if (activeTab === 'CANDIDATS') return utilisateurService.deleteCandidat(id);
-      if (activeTab === 'MONITEURS') return utilisateurService.deleteMoniteur(id);
-      return utilisateurService.deleteAdmin(id);
+      return utilisateurService.deleteMoniteur(id);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [activeTab.toLowerCase()] });
@@ -74,7 +65,6 @@ export default function AdminUtilisateurs() {
     }
   });
 
-  // --- HELPERS ---
   const handleAdd = () => {
     setEditingUser(null);
     reset({
@@ -113,7 +103,7 @@ export default function AdminUtilisateurs() {
     saveMutation.mutate(data);
   };
 
-  if (loadC || loadM || loadA) return <div style={{ padding: '20px' }}>Chargement des données...</div>;
+  if (loadC || loadM) return <div style={{ padding: '20px' }}>Chargement des données...</div>;
 
   const isPending = saveMutation.isPending;
 
@@ -127,18 +117,15 @@ export default function AdminUtilisateurs() {
           style={{ padding: '6px 14px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}
         >
           <span style={{ fontSize: '16px', lineHeight: '1' }}>+</span>
-          Ajouter un {activeTab === 'CANDIDATS' ? 'Candidat' : activeTab === 'MONITEURS' ? 'Moniteur' : 'Admin'}
+          Ajouter un {activeTab === 'CANDIDATS' ? 'Candidat' : 'Moniteur'}
         </button>
       </div>
 
-      {/* Onglets */}
-      <div className="tabs" style={{ marginBottom: '20px', maxWidth: '400px' }}>
+      <div className="tabs" style={{ marginBottom: '20px', maxWidth: '300px' }}>
         <button className={activeTab === 'CANDIDATS' ? 'on' : ''} onClick={() => setActiveTab('CANDIDATS')}>Candidats</button>
         <button className={activeTab === 'MONITEURS' ? 'on' : ''} onClick={() => setActiveTab('MONITEURS')}>Moniteurs</button>
-        <button className={activeTab === 'ADMINS' ? 'on' : ''} onClick={() => setActiveTab('ADMINS')}>Admins</button>
       </div>
 
-      {/* TABLEAU CANDIDATS */}
       {activeTab === 'CANDIDATS' && (
         <div className="tw">
           <table>
@@ -171,7 +158,6 @@ export default function AdminUtilisateurs() {
         </div>
       )}
 
-      {/* TABLEAU MONITEURS */}
       {activeTab === 'MONITEURS' && (
         <div className="tw">
           <table>
@@ -202,40 +188,10 @@ export default function AdminUtilisateurs() {
         </div>
       )}
 
-      {/* TABLEAU ADMINS */}
-      {activeTab === 'ADMINS' && (
-        <div className="tw">
-          <table>
-            <thead>
-              <tr>
-                <th>Nom</th>
-                <th>Email</th>
-                <th>Actif</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {admins.map((a) => (
-                <tr key={a.id}>
-                  <td>{a.prenom} {a.nom}</td>
-                  <td>{a.email}</td>
-                  <td>{a.actif ? '✅' : '❌'}</td>
-                  <td>
-                    <button className="btn s o" onClick={() => handleEdit(a)} style={{ marginRight: '5px' }}>Modifier</button>
-                    <button className="btn s r" onClick={() => handleDelete(a.id)}>Supprimer</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {/* MODALE D'AJOUT / MODIFICATION */}
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={`${editingUser ? 'Modifier' : 'Ajouter'} un ${activeTab === 'CANDIDATS' ? 'Candidat' : activeTab === 'MONITEURS' ? 'Moniteur' : 'Admin'}`}
+        title={`${editingUser ? 'Modifier' : 'Ajouter'} un ${activeTab === 'CANDIDATS' ? 'Candidat' : 'Moniteur'}`}
       >
         <form className="fm" onSubmit={handleSubmit(onSubmit)} style={{ gap: '12px' }}>
 

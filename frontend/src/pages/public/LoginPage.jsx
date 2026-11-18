@@ -28,17 +28,6 @@ export default function LoginPage() {
         <h2>Connexion</h2>
       </div>
 
-      <div className="tabs" style={{ pointerEvents: 'none', cursor: 'default' }}>
-        <div style={{ flex: 1, padding: '8px', textAlign: 'center', fontSize: '13px' }}>
-          Candidat
-        </div>
-        <div style={{ flex: 1, padding: '8px', textAlign: 'center', fontSize: '13px' }}>
-          Moniteur
-        </div>
-        <div style={{ flex: 1, padding: '8px', textAlign: 'center', fontSize: '13px' }}>
-          Admin
-        </div>
-      </div>
 
       {error && (
         <div style={{ background: '#d6334a22', color: 'var(--ko)', padding: '10px', borderRadius: '8px', marginBottom: '16px', fontSize: '13px', textAlign: 'center' }}>

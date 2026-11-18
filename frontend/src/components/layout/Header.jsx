@@ -6,13 +6,9 @@ import { Icons } from '../../utils/icons';
 import { useAuthStore } from '../../store/authStore';
 
 export default function Header() {
-  const [theme, setTheme] = useState(() => {
-    return localStorage.getItem('ed-theme') || 'light';
-  });
-
+  const [theme, setTheme] = useState(() => localStorage.getItem('ed-theme') || 'light');
   const navigate = useNavigate();
   const location = useLocation();
-  
   const { user, logout } = useAuthStore();
 
   useEffect(() => {
@@ -20,17 +16,13 @@ export default function Header() {
     localStorage.setItem('ed-theme', theme);
   }, [theme]);
 
-  const toggleTheme = () => {
-    setTheme(theme === 'dark' ? 'light' : 'dark');
-  };
+  const toggleTheme = () => setTheme(theme === 'dark' ? 'light' : 'dark');
 
   const handleNavClick = (e, sectionId) => {
     e.preventDefault();
     if (location.pathname !== '/') {
       navigate('/');
-      setTimeout(() => {
-        document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth' });
-      }, 100);
+      setTimeout(() => document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth' }), 100);
     } else {
       document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth' });
     }
@@ -41,10 +33,17 @@ export default function Header() {
     navigate('/login');
   };
 
+  const getDashboardPath = () => {
+    if (!user) return '/';
+    if (user.role === 'ADMIN') return '/admin';
+    if (user.role === 'MONITEUR') return '/moniteur';
+    return '/candidat';
+  };
+
   return (
     <header className="header">
       <div className="w">
-        <Link to="/" style={{ display: 'flex', alignItems: 'center' }}>
+        <Link to={getDashboardPath()} style={{ display: 'flex', alignItems: 'center' }}>
           <img src={logo_complet} alt="EduDrive Logo" className="logo" />
         </Link>
 
@@ -58,19 +57,9 @@ export default function Header() {
               <Link to="/login" className="btn o">Se connecter</Link>
             </>
           ) : (
-            <>
-              <Link 
-                to={user.role === 'ADMIN' ? '/admin' : user.role === 'MONITEUR' ? '/moniteur' : '/candidat'} 
-                className="btn o"
-                style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
-              >
-                <span style={{ fontSize: '16px' }}>👤</span> {user.prenom}
-              </Link>
-              
-              <button onClick={handleLogout} className="btn o" style={{ borderColor: 'var(--ko)', color: 'var(--ko)' }}>
-                Déconnexion
-              </button>
-            </>
+            <button onClick={handleLogout} className="btn o" style={{ borderColor: 'var(--ko)', color: 'var(--ko)' }}>
+              Déconnexion
+            </button>
           )}
         </nav>
 
