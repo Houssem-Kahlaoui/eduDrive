@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
+import { toast } from 'sonner'; // ✅ Import de Sonner
 import { seanceService } from '../../services/seanceService';
 import { utilisateurService } from '../../services/utilisateurService';
 import { vehiculeService } from '../../services/vehiculeService';
@@ -8,10 +9,16 @@ import Calendar from '../../components/ui/Calendar';
 import Modal from '../../components/ui/Modal';
 import Button from '../../components/ui/Button';
 import Badge from '../../components/ui/Badge';
+import ConfirmationModal from '../../components/ui/ConfirmationModal';
 
 export default function AdminSeances() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingSeance, setEditingSeance] = useState(null);
+  
+  // ✅ États pour la confirmation
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [seanceToDelete, setSeanceToDelete] = useState(null);
+
   const queryClient = useQueryClient();
 
   const { data: seances = [], isLoading: loadS } = useQuery({ queryKey: ['seances'], queryFn: seanceService.getSeances });
@@ -35,18 +42,31 @@ export default function AdminSeances() {
       queryClient.invalidateQueries({ queryKey: ['seances'] });
       setIsModalOpen(false);
       reset();
-      alert(editingSeance ? 'Séance modifiée !' : 'Séance planifiée !');
+      
+      // ✅ Remplacement des alertes par des toasts
+      if (editingSeance) {
+        toast.success('Séance modifiée avec succès !');
+      } else {
+        toast.success('Séance planifiée avec succès !');
+      }
+      
       setEditingSeance(null);
     },
-    onError: (error) => alert(error.response?.data?.erreur || "Erreur (Conflit d'horaire ?)")
+    onError: (error) => {
+      toast.error(error.response?.data?.erreur || "Erreur (Conflit d'horaire ?)"); // ✅ Toast erreur
+    }
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id) => seanceService.deleteSeance(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['seances'] });
-      setIsModalOpen(false);
-      alert('Séance supprimée !');
+      setIsModalOpen(false);       
+      setIsConfirmOpen(false);     
+      toast.success('Séance supprimée avec succès !'); // ✅ Toast succès
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.erreur || "Erreur lors de la suppression"); // ✅ Toast erreur
     }
   });
 
@@ -78,10 +98,10 @@ export default function AdminSeances() {
     setIsModalOpen(true);
   };
 
+  // ✅ Fonction modifiée pour ouvrir la modale de confirmation
   const handleDelete = () => {
-    if (window.confirm("Voulez-vous vraiment annuler cette séance ?")) {
-      deleteMutation.mutate(editingSeance.id);
-    }
+    setSeanceToDelete(editingSeance.id);
+    setIsConfirmOpen(true);
   };
 
   if (loadS) return <div style={{ padding: '20px' }}>Chargement...</div>;
@@ -180,6 +200,17 @@ export default function AdminSeances() {
 
         </form>
       </Modal>
+
+      {/* ✅ MODALE DE CONFIRMATION */}
+      <ConfirmationModal
+        isOpen={isConfirmOpen}
+        onClose={() => setIsConfirmOpen(false)}
+        onConfirm={() => deleteMutation.mutate(seanceToDelete)}
+        title="Annuler la séance"
+        message="Voulez-vous vraiment annuler cette séance ? Cette action est irréversible."
+        confirmText="Annuler la séance"
+        isDanger={true}
+      />
     </div>
   );
 }
