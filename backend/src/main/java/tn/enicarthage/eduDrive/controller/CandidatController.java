@@ -67,13 +67,13 @@ public class CandidatController {
         c.setDateNaissance(req.dateNaissance);
         c.setAdresse(req.adresse);
         c.setTypePermis(req.typePermis);
-        
+        c.setActif(req.actif);
+                if (req.statutFormation != null) {
+            c.setStatutFormation(req.statutFormation);
+        }
         if (req.password != null && !req.password.trim().isEmpty()) {
             c.setMotDePasse(req.password);
         }
-
-        c.setActif(req.actif);
-
         if (req.forfaitId != null && !req.forfaitId.equals(c.getForfaitId())) {
             Forfait f = forfaitDAO.findById(req.forfaitId);
             if (f != null) {

@@ -11,6 +11,7 @@ public class CandidatRequest {
     public String adresse;
     public String typePermis;
     public boolean actif ;
-    public Long forfaitId; 
+    public Long forfaitId;
+    public String statutFormation;
 
 }
