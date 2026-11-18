@@ -8,7 +8,7 @@ import tn.enicarthage.eduDrive.exception.ValidationException;
 import tn.enicarthage.eduDrive.model.Candidat;
 import tn.enicarthage.eduDrive.model.Seance;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -27,16 +27,19 @@ public class SeanceService {
         return s;
     }
 
-    // NOUVEAU : Séances d'un candidat
     public List<Seance> getByCandidat(Long id) { return dao.findByCandidatId(id); }
 
-    // NOUVEAU : Séances d'un moniteur
     public List<Seance> getByMoniteur(Long id) { return dao.findByMoniteurId(id); }
 
     public void create(Seance s) {
         if (s.getDateSeance() == null) throw new ValidationException("La date de la séance est obligatoire.");
         if (s.getHeureDebut() == null) throw new ValidationException("L'heure de la séance est obligatoire.");
-        if (s.getDateSeance().isBefore(LocalDate.now())) throw new ValidationException("Impossible de planifier une séance dans le passé.");
+
+        LocalDateTime dateHeureSeance = LocalDateTime.of(s.getDateSeance(), s.getHeureDebut());
+        if (dateHeureSeance.isBefore(LocalDateTime.now())) {
+            throw new ValidationException("Impossible de planifier une séance dans le passé.");
+        }
+
         if (s.getTypeSeance() == null || (!s.getTypeSeance().equals("CODE") && !s.getTypeSeance().equals("CONDUITE")))
             throw new ValidationException("Le type de séance doit être CODE ou CONDUITE.");
 
@@ -46,7 +49,7 @@ public class SeanceService {
             throw new ResourceNotFoundException("Moniteur introuvable : " + s.getMoniteurId());
 
         if ("CODE".equals(s.getTypeSeance())) {
-            s.setVehiculeId(null); // ✅ Une séance de CODE n'a pas de véhicule
+            s.setVehiculeId(null); 
         } else if (s.getVehiculeId() == null) {
             throw new ValidationException("Un véhicule est obligatoire pour une séance de conduite.");
         }

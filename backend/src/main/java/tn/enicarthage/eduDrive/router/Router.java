@@ -59,14 +59,20 @@ public class Router {
 
         String route = segments[1];
 
+        // ✅ 1. Routes publiques (Login et Forfaits)
         if (route.equals("login")) {
             return routeLogin(methode, exchange);
         }
+        
+        // ✅ Autoriser la lecture des forfaits sans token (pour la page d'accueil)
+        if (route.equals("admin") && segments.length >= 3 && segments[2].equals("forfaits") && methode.equals("GET")) {
+            return routeAdmin(methode, segments, exchange);
+        }
 
-        // JWT token verification
+        // 2. Toutes les autres routes nécessitent un token JWT valide
         verifierToken(exchange);
 
-        // Dispatch
+        // 3. Routage normal
         switch (route) {
             case "admin":     return routeAdmin(methode, segments, exchange);
             case "candidats": return routeCandidatEspace(methode, segments, exchange);
@@ -190,25 +196,14 @@ public class Router {
         throw new ValidationException("Methode non supportee : " + methode);
     }
 
-    // --- CRUD ADMINS ---
+    // --- MODIFICATION DU PROFIL ADMIN ---
     private Reponse routesAdminUser(String methode, String[] segments, HttpExchange exchange) throws IOException {
-        if (segments.length == 3) {
-            if (methode.equals("GET")) return new Reponse(200, gson.toJson(adminController.getAll()));
-            if (methode.equals("POST")) {
-                AdminRequest req = lireCorps(exchange, AdminRequest.class);
-                return new Reponse(201, gson.toJson(adminController.create(req)));
-            }
-        }
         if (segments.length == 4) {
             Long id = parseId(segments[3]);
             if (methode.equals("GET")) return new Reponse(200, gson.toJson(adminController.getById(id)));
             if (methode.equals("PUT")) {
                 AdminRequest req = lireCorps(exchange, AdminRequest.class);
                 return new Reponse(200, gson.toJson(adminController.update(id, req)));
-            }
-            if (methode.equals("DELETE")) {
-                adminController.delete(id);
-                return new Reponse(204, "");
             }
         }
         throw new ValidationException("Methode non supportee : " + methode);
