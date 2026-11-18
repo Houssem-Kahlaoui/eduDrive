@@ -1,14 +1,21 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm, useWatch } from 'react-hook-form';
+import { toast } from 'sonner'; // ✅ Import de Sonner
 import { forfaitService } from '../../services/forfaitService';
 import Badge from '../../components/ui/Badge';
 import Modal from '../../components/ui/Modal';
 import Button from '../../components/ui/Button';
+import ConfirmationModal from '../../components/ui/ConfirmationModal';
 
 export default function AdminForfaits() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingForfait, setEditingForfait] = useState(null);
+  
+  // ✅ États pour la confirmation
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [forfaitToDelete, setForfaitToDelete] = useState(null);
+
   const queryClient = useQueryClient();
 
   const { data: forfaits = [], isLoading } = useQuery({
@@ -31,17 +38,30 @@ export default function AdminForfaits() {
       queryClient.invalidateQueries({ queryKey: ['forfaits'] });
       setIsModalOpen(false);
       reset();
-      alert(editingForfait ? 'Forfait modifié !' : 'Forfait ajouté !');
+      
+      // ✅ Remplacement des alertes par des toasts
+      if (editingForfait) {
+        toast.success('Forfait modifié avec succès !');
+      } else {
+        toast.success('Forfait ajouté avec succès !');
+      }
+      
       setEditingForfait(null);
     },
-    onError: (error) => alert(error.response?.data?.erreur || "Erreur")
+    onError: (error) => {
+      toast.error(error.response?.data?.erreur || "Erreur lors de l'enregistrement"); // ✅ Toast erreur
+    }
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id) => forfaitService.deleteForfait(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['forfaits'] });
-      alert('Forfait supprimé !');
+      setIsConfirmOpen(false); 
+      toast.success('Forfait supprimé avec succès !'); // ✅ Toast succès
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.erreur || "Erreur lors de la suppression"); // ✅ Toast erreur
     }
   });
 
@@ -65,10 +85,10 @@ export default function AdminForfaits() {
     setIsModalOpen(true);
   };
 
+  // ✅ Fonction modifiée pour ouvrir la modale de confirmation
   const handleDelete = (id) => {
-    if (window.confirm("Voulez-vous vraiment supprimer ce forfait ?")) {
-      deleteMutation.mutate(id);
-    }
+    setForfaitToDelete(id);
+    setIsConfirmOpen(true);
   };
 
   if (isLoading) return <div style={{ padding: '20px' }}>Chargement...</div>;
@@ -114,7 +134,7 @@ export default function AdminForfaits() {
         </table>
       </div>
 
-      {/* MODALE */}
+      {/* MODALE D'AJOUT / MODIFICATION */}
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -143,7 +163,6 @@ export default function AdminForfaits() {
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-            
             <div>
               <label>Heures de code</label>
               <input type="number" {...register('heuresCode', { required: 'Requis', min: 0 })} />
@@ -157,7 +176,6 @@ export default function AdminForfaits() {
             ) : (
               <input type="hidden" value="0" {...register('heuresConduite')} />
             )}
-
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '10px' }}>
@@ -173,6 +191,17 @@ export default function AdminForfaits() {
           </div>
         </form>
       </Modal>
+
+      {/* ✅ MODALE DE CONFIRMATION */}
+      <ConfirmationModal
+        isOpen={isConfirmOpen}
+        onClose={() => setIsConfirmOpen(false)}
+        onConfirm={() => deleteMutation.mutate(forfaitToDelete)}
+        title="Supprimer le forfait"
+        message="Voulez-vous vraiment supprimer ce forfait ? Les candidats associés n'auront plus de forfait."
+        confirmText="Supprimer"
+        isDanger={true}
+      />
     </div>
   );
 }

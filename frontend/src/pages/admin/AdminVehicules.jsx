@@ -1,14 +1,20 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
+import { toast } from 'sonner'; // ✅ Import de Sonner
 import { vehiculeService } from '../../services/vehiculeService';
 import Badge from '../../components/ui/Badge';
 import Modal from '../../components/ui/Modal';
 import Button from '../../components/ui/Button';
+import ConfirmationModal from '../../components/ui/ConfirmationModal';
 
 export default function AdminVehicules() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingVehicule, setEditingVehicule] = useState(null);
+  
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [vehiculeToDelete, setVehiculeToDelete] = useState(null);
+
   const queryClient = useQueryClient();
 
   const { data: vehicules = [], isLoading } = useQuery({
@@ -16,7 +22,7 @@ export default function AdminVehicules() {
     queryFn: vehiculeService.getVehicules,
   });
 
-  const { register, handleSubmit, reset} = useForm();
+  const { register, handleSubmit, reset } = useForm();
 
   const saveMutation = useMutation({
     mutationFn: (data) => {
@@ -27,19 +33,31 @@ export default function AdminVehicules() {
       queryClient.invalidateQueries({ queryKey: ['vehicules'] });
       setIsModalOpen(false);
       reset();
-      alert(editingVehicule ? 'Véhicule modifié !' : 'Véhicule ajouté !');
+      
+      // ✅ Remplacement des alertes par des toasts
+      if (editingVehicule) {
+        toast.success('Véhicule modifié avec succès !');
+      } else {
+        toast.success('Véhicule ajouté avec succès !');
+      }
+      
       setEditingVehicule(null);
     },
-    onError: (error) => alert(error.response?.data?.erreur || "Erreur")
+    onError: (error) => {
+      toast.error(error.response?.data?.erreur || "Erreur lors de l'enregistrement");
+    }
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id) => vehiculeService.deleteVehicule(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['vehicules'] });
-      alert('Véhicule supprimé !');
+      setIsConfirmOpen(false); 
+      toast.success('Véhicule supprimé avec succès !'); // ✅ Toast succès
     },
-    onError: (error) => alert(error.response?.data?.erreur || "Erreur lors de la suppression")
+    onError: (error) => {
+      toast.error(error.response?.data?.erreur || "Erreur lors de la suppression"); // ✅ Toast erreur
+    }
   });
 
   const handleAdd = () => {
@@ -60,9 +78,8 @@ export default function AdminVehicules() {
   };
 
   const handleDelete = (id) => {
-    if (window.confirm("Voulez-vous vraiment supprimer ce véhicule ?")) {
-      deleteMutation.mutate(id);
-    }
+    setVehiculeToDelete(id);
+    setIsConfirmOpen(true);
   };
 
   if (isLoading) return <div style={{ padding: '20px' }}>Chargement...</div>;
@@ -144,6 +161,17 @@ export default function AdminVehicules() {
           </div>
         </form>
       </Modal>
+
+      {/* ✅ MODALE DE CONFIRMATION */}
+      <ConfirmationModal
+        isOpen={isConfirmOpen}
+        onClose={() => setIsConfirmOpen(false)}
+        onConfirm={() => deleteMutation.mutate(vehiculeToDelete)}
+        title="Supprimer le véhicule"
+        message="Voulez-vous vraiment supprimer ce véhicule ?"
+        confirmText="Supprimer"
+        isDanger={true}
+      />
     </div>
   );
 }

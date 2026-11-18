@@ -1,16 +1,22 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
+import { toast } from 'sonner'; // ✅ Import de Sonner
 import { utilisateurService } from '../../services/utilisateurService';
 import { forfaitService } from '../../services/forfaitService';
 import Badge from '../../components/ui/Badge';
 import Modal from '../../components/ui/Modal';
 import Button from '../../components/ui/Button';
+import ConfirmationModal from '../../components/ui/ConfirmationModal';
 
 export default function AdminUtilisateurs() {
   const [activeTab, setActiveTab] = useState('CANDIDATS'); // 'CANDIDATS' ou 'MONITEURS'
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
+
+  // ✅ Nouveaux états pour la modale de confirmation
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
 
   const queryClient = useQueryClient();
 
@@ -18,7 +24,6 @@ export default function AdminUtilisateurs() {
   const { data: moniteurs = [], isLoading: loadM } = useQuery({ queryKey: ['moniteurs'], queryFn: utilisateurService.getMoniteurs });
   const { data: forfaits = [] } = useQuery({ queryKey: ['forfaits'], queryFn: forfaitService.getForfaits });
   
-
   // --- FORMULAIRE ---
   const { register, handleSubmit, reset, setValue, watch } = useForm({
     defaultValues: { actif: true }
@@ -43,11 +48,18 @@ export default function AdminUtilisateurs() {
       queryClient.invalidateQueries({ queryKey: [activeTab.toLowerCase()] });
       setIsModalOpen(false);
       reset();
-      alert(editingUser ? 'Modification réussie !' : 'Ajout réussi !');
+      
+      // ✅ Remplacement des alertes par des toasts
+      if (editingUser) {
+        toast.success('Modification réussie !');
+      } else {
+        toast.success('Ajout réussi !');
+      }
+      
       setEditingUser(null);
     },
     onError: (error) => {
-      alert(error.response?.data?.erreur || "Erreur");
+      toast.error(error.response?.data?.erreur || "Erreur"); // ✅ Toast erreur
     }
   });
 
@@ -58,10 +70,11 @@ export default function AdminUtilisateurs() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [activeTab.toLowerCase()] });
-      alert('Suppression réussie !');
+      setIsConfirmOpen(false); 
+      toast.success('Suppression réussie !'); // ✅ Toast succès
     },
     onError: (error) => {
-      alert(error.response?.data?.erreur || "Erreur lors de la suppression");
+      toast.error(error.response?.data?.erreur || "Erreur lors de la suppression"); // ✅ Toast erreur
     }
   });
 
@@ -93,10 +106,10 @@ export default function AdminUtilisateurs() {
     setIsModalOpen(true);
   };
 
+  // ✅ Fonction modifiée pour ouvrir la modale de confirmation
   const handleDelete = (id) => {
-    if (window.confirm("Voulez-vous vraiment supprimer cet utilisateur ?")) {
-      deleteMutation.mutate(id);
-    }
+    setUserToDelete(id);
+    setIsConfirmOpen(true);
   };
 
   const onSubmit = (data) => {
@@ -295,6 +308,17 @@ export default function AdminUtilisateurs() {
           </div>
         </form>
       </Modal>
+
+      {/* ✅ MODALE DE CONFIRMATION */}
+      <ConfirmationModal
+        isOpen={isConfirmOpen}
+        onClose={() => setIsConfirmOpen(false)}
+        onConfirm={() => deleteMutation.mutate(userToDelete)}
+        title="Supprimer l'utilisateur"
+        message="Voulez-vous vraiment supprimer cet utilisateur ?"
+        confirmText="Supprimer"
+        isDanger={true}
+      />
     </div>
   );
 }

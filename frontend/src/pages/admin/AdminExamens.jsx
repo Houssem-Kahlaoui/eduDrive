@@ -1,15 +1,22 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
+import { toast } from 'sonner'; // ✅ Import de Sonner
 import { examenService } from '../../services/examenService';
 import { utilisateurService } from '../../services/utilisateurService'; 
 import Badge from '../../components/ui/Badge';
 import Modal from '../../components/ui/Modal';
 import Button from '../../components/ui/Button';
+import ConfirmationModal from '../../components/ui/ConfirmationModal';
 
 export default function AdminExamens() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingExamen, setEditingExamen] = useState(null);
+  
+  // ✅ États pour la confirmation
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [examenToDelete, setExamenToDelete] = useState(null);
+
   const queryClient = useQueryClient();
 
   const { data: examens = [], isLoading } = useQuery({
@@ -35,17 +42,30 @@ export default function AdminExamens() {
       queryClient.invalidateQueries({ queryKey: ['examens'] });
       setIsModalOpen(false);
       reset();
-      alert(editingExamen ? 'Examen modifié !' : 'Examen ajouté !');
+      
+      // ✅ Remplacement des alertes par des toasts
+      if (editingExamen) {
+        toast.success('Examen modifié avec succès !');
+      } else {
+        toast.success('Examen ajouté avec succès !');
+      }
+      
       setEditingExamen(null);
     },
-    onError: (error) => alert(error.response?.data?.erreur || "Erreur")
+    onError: (error) => {
+      toast.error(error.response?.data?.erreur || "Erreur lors de l'enregistrement"); // ✅ Toast erreur
+    }
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id) => examenService.deleteExamen(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['examens'] });
-      alert('Examen supprimé !');
+      setIsConfirmOpen(false); 
+      toast.success('Examen supprimé avec succès !'); // ✅ Toast succès
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.erreur || "Erreur lors de la suppression"); // ✅ Toast erreur
     }
   });
 
@@ -67,10 +87,10 @@ export default function AdminExamens() {
     setIsModalOpen(true);
   };
 
+  // ✅ Fonction modifiée pour ouvrir la modale de confirmation
   const handleDelete = (id) => {
-    if (window.confirm("Voulez-vous vraiment supprimer cet examen ?")) {
-      deleteMutation.mutate(id);
-    }
+    setExamenToDelete(id);
+    setIsConfirmOpen(true);
   };
 
   if (isLoading) return <div style={{ padding: '20px' }}>Chargement...</div>;
@@ -185,6 +205,17 @@ export default function AdminExamens() {
           </div>
         </form>
       </Modal>
+
+      {/* ✅ MODALE DE CONFIRMATION */}
+      <ConfirmationModal
+        isOpen={isConfirmOpen}
+        onClose={() => setIsConfirmOpen(false)}
+        onConfirm={() => deleteMutation.mutate(examenToDelete)}
+        title="Supprimer l'examen"
+        message="Voulez-vous vraiment supprimer cet examen ? L'historique de tentative sera perdu."
+        confirmText="Supprimer"
+        isDanger={true}
+      />
     </div>
   );
 }
