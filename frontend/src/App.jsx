@@ -24,6 +24,10 @@ import MoniteurCandidats from './pages/moniteur/MoniteurCandidats';
 
 // Candidat (temp)
 import CandidatDashboard from './pages/candidat/CandidatDashboard';
+import CandidatExamens from './pages/candidat/CandidatExamens';
+import CandidatSeances from './pages/candidat/CandidatSeances';
+
+
 
 function App() {
   return (
@@ -59,6 +63,8 @@ function App() {
         <Route element={<ProtectedRoute allowedRoles={['CANDIDAT']} />}>
           <Route element={<DashboardLayout />}>
             <Route path="/candidat" element={<CandidatDashboard />} />
+            <Route path="/candidat/seances" element={<CandidatSeances />} />
+            <Route path="/candidat/examens" element={<CandidatExamens />} />
           </Route>
         </Route>
 

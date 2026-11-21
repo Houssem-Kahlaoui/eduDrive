@@ -83,6 +83,12 @@ export const Icons = {
       <path d="M4 21a8 8 0 0 1 16 0"/>
     </svg>
   ),
+    trend: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ width: '18px', height: '18px' }}>
+      <path d="M3 17l6-6 4 4 8-8" />
+      <path d="M15 7h6v6" />
+    </svg>
+  ),
 
 
 };

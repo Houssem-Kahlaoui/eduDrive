@@ -19,6 +19,12 @@ export default function Sidebar() {
       { path: '/moniteur', label: 'Mon planning', icon: Icons.cal },
       { path: '/moniteur/candidats', label: 'Mes candidats', icon: Icons.users },
     ],
+    // ✅ Ajout du menu pour les Candidats
+    CANDIDAT: [
+      { path: '/candidat', label: 'Mon suivi', icon: Icons.trend },
+      { path: '/candidat/seances', label: 'Mes séances', icon: Icons.cal },
+      { path: '/candidat/examens', label: 'Mes examens', icon: Icons.cap },
+    ],
   };
 
   const menuItems = MENUS[user?.role] || [];
